@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse, Response
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -58,6 +58,14 @@ def cache_analysis_ephemeral(analysis: dict):
         "color_class": color_class
     }
     memory_store.set(case_id, analysis, history_item)
+
+
+FAVICON_SVG = """<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='#06B6D4' stroke='#0284C7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>"""
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return Response(content=FAVICON_SVG, media_type="image/svg+xml")
 
 
 @app.get("/", response_class=HTMLResponse)

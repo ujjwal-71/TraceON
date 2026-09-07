@@ -17,16 +17,21 @@ function initTraceonShield() {
 }
 
 function injectGmailButtons() {
-    // 1. In Gmail Row List (Next to Star / Important marker)
+    // 1. In Gmail Row List (Next to Important marker or Star - NEVER in Sender column)
     const rows = document.querySelectorAll("tr.zA:not(.traceon-injected)");
     rows.forEach(row => {
         row.classList.add("traceon-injected");
-        const starOrImportantCell = row.querySelector("td.apU, td.yX, .T-KT, .pG");
-        if (starOrImportantCell) {
+        
+        // Find Important Marker container (td.WA) or Star container (td.apU)
+        const importantCell = row.querySelector("td.WA");
+        const starCell = row.querySelector("td.apU");
+        const targetContainer = importantCell || starCell;
+
+        if (targetContainer && !targetContainer.querySelector(".traceon-gmail-scan-btn")) {
             const btn = document.createElement("button");
             btn.className = "traceon-gmail-scan-btn";
             btn.title = "TRACEON 1-Click Forensic Scan";
-            btn.innerHTML = `<span class="traceon-shield-icon">🛡️</span><span class="traceon-btn-tag">TRACEON</span>`;
+            btn.innerHTML = `<svg class="traceon-shield-svg" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#38BDF8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`;
             
             btn.addEventListener("click", (e) => {
                 e.stopPropagation();
@@ -34,51 +39,75 @@ function injectGmailButtons() {
                 scanGmailRow(row);
             });
 
-            starOrImportantCell.appendChild(btn);
+            targetContainer.appendChild(btn);
         }
     });
 
-    // 2. Inside Open Email View Toolbar
-    const toolbars = document.querySelectorAll(".G-Ni.J-J5-Ji:not(.traceon-toolbar-injected)");
-    toolbars.forEach(toolbar => {
-        toolbar.classList.add("traceon-toolbar-injected");
-        const btn = document.createElement("button");
-        btn.className = "traceon-toolbar-btn";
-        btn.innerHTML = `🛡️ <span>TRACEON Scan</span>`;
-        btn.title = "Execute Ephemeral AI Forensic Scan";
-        btn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            scanOpenEmail();
-        });
-        toolbar.appendChild(btn);
-    });
+    // 2. Inside Open Email View (Single Button in Top Action Bar)
+    const isEmailOpen = document.querySelector("h2.hP, .a3s.aiL, div[role='main'] .adn") !== null;
+    const existingToolbarBtn = document.querySelector(".traceon-toolbar-btn");
+
+    if (isEmailOpen && !existingToolbarBtn) {
+        // Target the right-most group of the active reading toolbar
+        const mainToolbar = document.querySelector("div[role='main'] .G-atb .G-Ni:last-child, div[role='toolbar'] .G-Ni:last-child");
+        if (mainToolbar) {
+            const btn = document.createElement("button");
+            btn.className = "traceon-toolbar-btn";
+            btn.innerHTML = `<svg class="traceon-shield-svg" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <span>TRACEON Scan</span>`;
+            btn.title = "Execute Ephemeral AI Forensic Scan on Open Email";
+            btn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                scanOpenEmail();
+            });
+            mainToolbar.appendChild(btn);
+        }
+    } else if (!isEmailOpen && existingToolbarBtn) {
+        // Remove toolbar button when returning to inbox list view
+        existingToolbarBtn.remove();
+    }
 }
 
 function injectOutlookButtons() {
     const outlookRows = document.querySelectorAll("[data-convid]:not(.traceon-injected)");
     outlookRows.forEach(row => {
         row.classList.add("traceon-injected");
-        const btn = document.createElement("button");
-        btn.className = "traceon-gmail-scan-btn";
-        btn.innerHTML = `🛡️ TRACEON`;
-        btn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            scanGenericDom(row);
-        });
-        row.appendChild(btn);
+        if (!row.querySelector(".traceon-gmail-scan-btn")) {
+            const btn = document.createElement("button");
+            btn.className = "traceon-gmail-scan-btn";
+            btn.title = "TRACEON 1-Click Forensic Scan";
+            btn.innerHTML = `<svg class="traceon-shield-svg" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#38BDF8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`;
+            btn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                scanGenericDom(row);
+            });
+            row.appendChild(btn);
+        }
     });
 }
 
 function scanGmailRow(row) {
-    const sender = row.querySelector(".yP, .zF, span[email]")?.innerText || "Unknown Sender";
-    const subject = row.querySelector(".bog, .bqe")?.innerText || "(No Subject)";
-    const snippet = row.querySelector(".y2")?.innerText || "";
+    const senderEl = row.querySelector("span[email], .yP, .zF, div.yW span");
+    let sender = "Unknown Sender";
+    if (senderEl) {
+        const emailAttr = senderEl.getAttribute("email");
+        const nameText = senderEl.innerText ? senderEl.innerText.trim() : "";
+        sender = emailAttr ? (nameText ? `${nameText} <${emailAttr}>` : emailAttr) : (nameText || "Unknown Sender");
+    }
+
+    const subjectEl = row.querySelector(".bog, .bqe");
+    const subject = subjectEl ? subjectEl.innerText.trim() : "(No Subject)";
+
+    const snippetEl = row.querySelector(".y2");
+    const snippet = snippetEl ? snippetEl.innerText.trim().replace(/^[\s\-–—]+/, '') : "";
+
+    const dateEl = row.querySelector(".xW span, .xW");
+    const dateStr = (dateEl && dateEl.getAttribute("title")) ? dateEl.getAttribute("title") : new Date().toUTCString();
 
     const rawEmail = `From: ${sender}
 Subject: ${subject}
-Date: ${new Date().toUTCString()}
+Date: ${dateStr}
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 
@@ -88,13 +117,26 @@ ${snippet}
 }
 
 function scanOpenEmail() {
-    const subject = document.querySelector("h2.hP")?.innerText || "(No Subject)";
-    const sender = document.querySelector("span.gD")?.innerText || document.querySelector("span[email]")?.innerText || "Unknown";
-    const body = document.querySelector(".a3s.aiL, .adn.ads")?.innerText || "";
+    const subjectEl = document.querySelector("h2.hP, h2[data-thread-perm-id]");
+    const subject = subjectEl ? subjectEl.innerText.trim() : "(No Subject)";
+
+    const senderEl = document.querySelector("span.gD, span[email]");
+    let sender = "Unknown Sender";
+    if (senderEl) {
+        const emailAttr = senderEl.getAttribute("email");
+        const nameText = senderEl.innerText ? senderEl.innerText.trim() : "";
+        sender = emailAttr ? (nameText ? `${nameText} <${emailAttr}>` : emailAttr) : (nameText || "Unknown Sender");
+    }
+
+    const bodyEl = document.querySelector(".a3s.aiL, div[role='listitem'] .adn");
+    const body = bodyEl ? bodyEl.innerText.trim() : "";
+
+    const dateEl = document.querySelector(".g3");
+    const dateStr = (dateEl && dateEl.getAttribute("title")) ? dateEl.getAttribute("title") : new Date().toUTCString();
 
     const rawEmail = `From: ${sender}
 Subject: ${subject}
-Date: ${new Date().toUTCString()}
+Date: ${dateStr}
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 

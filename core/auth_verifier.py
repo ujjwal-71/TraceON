@@ -50,29 +50,42 @@ class AuthVerifier:
 
         # 3. DMARC Alignment Check
         dmarc_status = "NONE"
-        dmarc_detail = "DMARC policy could not be aligned."
+        dmarc_detail = "No gateway authentication headers found in email."
+        is_spoofed = False
+
         if auth_results_header and "dmarc=" in auth_results_header.lower():
             m = re.search(r'dmarc=(\w+)', auth_results_header, re.I)
             if m:
                 dmarc_status = m.group(1).upper()
                 dmarc_detail = f"DMARC {dmarc_status} reported by receiving gateway."
+                if dmarc_status == "FAIL":
+                    is_spoofed = True
         else:
-            spf_aligned = (spf_status == "PASS") and (from_domain == return_domain)
-            dkim_aligned = (dkim_status == "PASS") and (from_domain == dkim_domain or from_domain.endswith(f".{dkim_domain}"))
+            has_explicit_auth = (spf_status != "NONE") or (dkim_status != "NONE")
+            spf_aligned = (spf_status == "PASS") and (from_domain and return_domain and from_domain == return_domain)
+            dkim_aligned = (dkim_status == "PASS") and (from_domain and dkim_domain and (from_domain == dkim_domain or from_domain.endswith(f".{dkim_domain}")))
 
             if spf_aligned or dkim_aligned:
                 dmarc_status = "PASS"
                 dmarc_detail = "DMARC aligned via SPF/DKIM identifier match."
-            elif spf_status in ["FAIL", "SOFTFAIL"] or (not spf_aligned and not dkim_aligned and from_domain):
+            elif has_explicit_auth and (spf_status in ["FAIL", "SOFTFAIL"] or dkim_status == "FAIL"):
                 dmarc_status = "FAIL"
-                dmarc_detail = "DMARC failed: Neither SPF nor DKIM aligns with From domain."
+                dmarc_detail = "DMARC failed: Explicit SPF or DKIM cryptographic failure."
+                is_spoofed = True
+            elif has_explicit_auth:
+                dmarc_status = "NONE"
+                dmarc_detail = "DMARC unaligned (Unverified policy)."
+            else:
+                # No gateway headers present (e.g. webmail DOM snippet)
+                dmarc_status = "NONE"
+                dmarc_detail = "No authentication headers attached to text (Unverified mode)."
 
-        is_spoofed = (dmarc_status == "FAIL" or spf_status in ["FAIL", "SOFTFAIL"]) and (from_domain != return_domain)
+        overall_verdict = "AUTHENTIC" if dmarc_status == "PASS" else ("SPOOFED" if is_spoofed else "UNVERIFIED")
 
         return {
             "spf": {"status": spf_status, "detail": spf_detail},
             "dkim": {"status": dkim_status, "domain": dkim_domain, "detail": dkim_detail, "is_valid": dkim_status == "PASS"},
             "dmarc": {"status": dmarc_status, "detail": dmarc_detail, "aligned": dmarc_status == "PASS"},
             "is_spoofed": is_spoofed,
-            "overall_auth_verdict": "AUTHENTIC" if dmarc_status == "PASS" else ("SPOOFED" if is_spoofed else "UNVERIFIED")
+            "overall_auth_verdict": overall_verdict
         }

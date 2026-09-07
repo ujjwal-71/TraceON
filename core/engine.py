@@ -106,7 +106,7 @@ class AegisTraceEngine:
                 eng["ai_audit_verdict"] = audit_map[eng["id"]]["ai_audit_verdict"]
                 eng["ai_audit_note"] = audit_map[eng["id"]]["ai_audit_note"]
             else:
-                eng["ai_audit_verdict"] = "AI VERIFIED ✓"
+                eng["ai_audit_verdict"] = "AI VERIFIED"
                 eng["ai_audit_note"] = "Consistent with multi-vector findings."
 
         flagged_count = sum(1 for e in engines_report if e["status"] in ["MALICIOUS", "SUSPICIOUS"])
@@ -220,13 +220,30 @@ class AegisTraceEngine:
 
         # 3. Cryptographic Authentication
         auth_verdict = auth_results.get("overall_auth_verdict", "UNVERIFIED")
-        e3_status = "CLEAN" if auth_verdict == "AUTHENTIC" else ("MALICIOUS" if auth_results.get("is_spoofed") else "SUSPICIOUS")
+        is_spoofed = auth_results.get("is_spoofed", False)
+        dmarc_stat = auth_results.get("dmarc", {}).get("status", "NONE")
+        spf_stat = auth_results.get("spf", {}).get("status", "NONE")
+        dkim_stat = auth_results.get("dkim", {}).get("status", "NONE")
+
+        if auth_verdict == "AUTHENTIC":
+            e3_status = "CLEAN"
+            e3_details = f"DMARC: {dmarc_stat}, SPF: {spf_stat}, DKIM: {dkim_stat}."
+        elif is_spoofed or dmarc_stat == "FAIL" or spf_stat == "FAIL":
+            e3_status = "MALICIOUS"
+            e3_details = f"Cryptographic validation failed: DMARC {dmarc_stat}, SPF {spf_stat}."
+        elif auth_verdict == "UNVERIFIED":
+            e3_status = "CLEAN"
+            e3_details = "Snippet mode: No gateway authentication headers attached (Unverified)."
+        else:
+            e3_status = "SUSPICIOUS"
+            e3_details = f"DMARC: {dmarc_stat}, SPF: {spf_stat}, DKIM: {dkim_stat}."
+
         engines.append({
             "id": "engine_crypto_auth",
             "name": "Cryptographic Authentication & DMARC Matrix",
             "category": "Protocol Security",
             "status": e3_status,
-            "details": f"DMARC: {auth_results.get('dmarc', {}).get('status')}, SPF: {auth_results.get('spf', {}).get('status')}, DKIM: {auth_results.get('dkim', {}).get('status')}."
+            "details": e3_details
         })
 
         # 4. Homoglyph Inspector

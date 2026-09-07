@@ -1,37 +1,45 @@
-/* Injected Gmail Scan Button */
+/* Container adjustments in Gmail */
+tr.zA td.WA,
+tr.zA td.apU {
+    white-space: nowrap !important;
+    overflow: visible !important;
+}
+
+tr.zA td.WA {
+    min-width: 46px !important;
+}
+
+/* Injected Gmail / Outlook Scan Icon Button (Icon Only) */
 .traceon-gmail-scan-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    background: #071124 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 20px !important;
+    height: 20px !important;
+    background: rgba(6, 182, 212, 0.12) !important;
     border: 1px solid rgba(6, 182, 212, 0.5) !important;
-    color: #38BDF8 !important;
-    font-size: 10px !important;
-    font-weight: bold !important;
-    font-family: monospace !important;
-    padding: 2px 6px !important;
-    border-radius: 6px !important;
+    border-radius: 4px !important;
     cursor: pointer !important;
-    margin-left: 6px !important;
+    margin-left: 4px !important;
+    margin-right: 4px !important;
+    padding: 0 !important;
     vertical-align: middle !important;
-    box-shadow: 0 0 8px rgba(6, 182, 212, 0.25) !important;
-    transition: all 0.2s ease !important;
-    z-index: 10 !important;
+    box-shadow: 0 0 5px rgba(6, 182, 212, 0.2) !important;
+    transition: all 0.15s ease !important;
+    z-index: 5 !important;
+    flex-shrink: 0 !important;
 }
 
 .traceon-gmail-scan-btn:hover {
-    background: #0C1E3D !important;
+    background: rgba(6, 182, 212, 0.28) !important;
     border-color: #38BDF8 !important;
-    box-shadow: 0 0 15px rgba(56, 189, 248, 0.5) !important;
-    transform: scale(1.05) !important;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.6) !important;
+    transform: scale(1.12) !important;
 }
 
-.traceon-shield-icon {
-    font-size: 11px !important;
-}
-
-.traceon-btn-tag {
-    letter-spacing: 0.5px !important;
+.traceon-shield-svg {
+    display: block !important;
+    pointer-events: none !important;
 }
 
 /* Open Email Toolbar Button */

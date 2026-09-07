@@ -9,22 +9,21 @@ class DeceptionIntentAnalyzer:
     """Analyzes email text for psychological coercion, urgency, and wire fraud tactics."""
 
     URGENCY_PATTERNS = [
-        r'\b(?:immediately|urgent|within\s+\d+\s+(?:hours?|minutes?|days?)|act\s+now|action\s+required|asap|time-sensitive)\b',
-        r'\b(?:account\s+suspended|suspended\s+temporarily|permanent\s+deactivation|access\s+revoked)\b',
-        r'\b(?:final\s+notice|last\s+warning|termination|legal\s+action|lawsuit|penalty|comparecencia|notificación\s+judicial)\b'
+        r'\b(?:immediately|act\s+now|urgent\s+action\s+required|within\s+\d+\s+(?:hours?|minutes?))\b',
+        r'\b(?:account\s+will\s+be\s+(?:suspended|terminated|deactivated)|access\s+will\s+be\s+revoked)\b',
+        r'\b(?:final\s+notice|last\s+warning|legal\s+proceedings|pending\s+lawsuit|immediate\s+penalty)\b'
     ]
 
     BEC_PATTERNS = [
-        r'\b(?:wire\s+transfer|fund\s+transfer|swift|direct\s+deposit|payroll\s+update|bank\s+details)\b',
-        r'\b(?:confidential\s+matter|strictly\s+confidential|do\s+not\s+call|keep\s+this\s+private)\b',
-        r'\b(?:ceo|cfo|chief\s+executive|managing\s+director|board\s+of\s+directors)\b',
-        r'\b(?:vendor\s+payment|updated\s+invoice|remittance\s+advice|routing\s+number)\b'
+        r'\b(?:wire\s+transfer|send\s+funds|swift\s+transfer|direct\s+wire|update\s+direct\s+deposit|new\s+banking\s+details)\b',
+        r'\b(?:keep\s+this\s+strictly\s+confidential|do\s+not\s+discuss\s+with\s+anyone|confidential\s+acquisition)\b',
+        r'\b(?:process\s+payment\s+asap|urgent\s+remittance|vendor\s+bank\s+account\s+change)\b'
     ]
 
     CREDENTIAL_PATTERNS = [
-        r'\b(?:verify\s+your\s+account|confirm\s+password|reset\s+password|login\s+credentials)\b',
-        r'\b(?:mfa\s+verification|2fa\s+code|security\s+update|validate\s+identity)\b',
-        r'\b(?:office\s*365|microsoft\s*365|google\s*workspace|webmail\s*portal)\b'
+        r'\b(?:verify\s+your\s+password|confirm\s+your\s+credentials|login\s+to\s+verify\s+identity|re-enter\s+your\s+password)\b',
+        r'\b(?:submit\s+mfa\s+code|enter\s+2fa\s+pin|unauthorized\s+login\s+detected\s+click\s+here)\b',
+        r'\b(?:validate\s+account\s+security|unlock\s+your\s+suspended\s+account\s+now)\b'
     ]
 
     def __init__(self, lm_studio_url: str = "http://localhost:1234/v1"):
@@ -64,11 +63,11 @@ class DeceptionIntentAnalyzer:
             found = re.findall(pat, combined_text, re.IGNORECASE)
             urgency_matches.extend(found)
         if urgency_matches:
-            score += 40
+            score += 35
             tactics.append({
-                "tactic": "Psychological Urgency & Fear Coercion",
-                "severity": "HIGH",
-                "description": "Uses artificial time pressure to force hasty recipient action.",
+                "tactic": "Psychological Urgency & Pressure",
+                "severity": "MEDIUM",
+                "description": "Uses artificial time pressure to prompt quick action.",
                 "evidence": list(set(urgency_matches))[:4]
             })
 
@@ -80,9 +79,9 @@ class DeceptionIntentAnalyzer:
         if bec_matches:
             score += 45
             tactics.append({
-                "tactic": "Executive Impersonation & Wire Transfer Fraud (BEC)",
+                "tactic": "Executive Impersonation & Wire Fraud (BEC)",
                 "severity": "CRITICAL",
-                "description": "Requests urgent fund transfers under executive authority or secrecy.",
+                "description": "Requests unauthorized funds transfer or secrecy.",
                 "evidence": list(set(bec_matches))[:4]
             })
 
@@ -92,28 +91,29 @@ class DeceptionIntentAnalyzer:
             found = re.findall(pat, combined_text, re.IGNORECASE)
             cred_matches.extend(found)
         if cred_matches:
-            score += 35
+            score += 45
             tactics.append({
                 "tactic": "Credential Harvesting Phishing",
                 "severity": "HIGH",
-                "description": "Directs recipient to re-authenticate or input account passwords.",
+                "description": "Directs recipient to input passwords or MFA codes.",
                 "evidence": list(set(cred_matches))[:4]
             })
 
-        final_score = min(score, 100)
-        if final_score >= 70:
-            category = "MALICIOUS SOCIAL ENGINEERING"
-        elif final_score >= 35:
-            category = "SUSPICIOUS DECEPTION"
+        # Cap score at 100
+        score = min(score, 100)
+
+        # Classification
+        if score >= 70:
+            category = "MALICIOUS"
+        elif score >= 45:
+            category = "SUSPICIOUS"
         else:
             category = "BENIGN"
 
-        summary = f"Detected {len(tactics)} psychological manipulation patterns indicating {category}."
-        if not tactics:
-            summary = "No coercion, credential harvesting, or wire fraud tactics detected."
+        summary = f"Detected {len(tactics)} psychological deception cues." if tactics else "No social engineering or wire fraud tactics detected."
 
         return {
-            "intent_score": final_score,
+            "intent_score": score,
             "threat_category": category,
             "tactics_detected": tactics,
             "ai_summary": summary
