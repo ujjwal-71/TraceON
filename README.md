@@ -4,7 +4,7 @@
 
 ---
 
-## 🌟 Key Innovations
+## Key Innovations
 
 1. **Zero-Retention Ephemeral Privacy**:
    - Analyzes emails strictly in volatile computer memory (RAM).
@@ -13,11 +13,11 @@
 
 2. **Neuro-Symbolic Declarative Logic Engine (`ai/symbolic_engine.py`)**:
    - Pure-Python Declarative Logic Inference Engine (Prolog-style forward/backward chaining).
-   - Generates transparent, verifiable **Formal Deductive Proof Chains** (`Fact ➔ Axiom ➔ Deduction`) with zero hallucinations.
+   - Generates transparent, verifiable **Formal Deductive Proof Chains** (`Fact -> Axiom -> Deduction`) with zero hallucinations.
 
 3. **7-Engine Forensic Diagnostic Suite (`core/engine.py`)**:
    - **Engine 1**: AI Social Engineering & Intent Analyzer (Urgency, Coercion, BEC Wire Fraud).
-   - **Engine 2**: Reverse Relay Hop Latency & Timestomp Engine ($\Delta t < 0$ forgery detection).
+   - **Engine 2**: Reverse Relay Hop Latency & Timestomp Engine (Delta t < 0 forgery detection).
    - **Engine 3**: Cryptographic Authentication & DMARC Alignment Matrix (SPF, DKIM, DMARC).
    - **Engine 4**: Domain & Homoglyph Lookalike Inspector (Cyrillic/Greek Unicode & Punycode).
    - **Engine 5**: Quishing (QR Phish) & Attachment Sandbox (2D Barcode OCR decoder).
@@ -26,8 +26,8 @@
 
 4. **1-Click Webmail Browser Extension (`extension/`)**:
    - **Popup**: Top-left auto-scan toggle, top-right "Go to full site" button, and central **Round Upload Button**.
-   - **In-Webmail Shield**: Injects a glowing `[ 🛡️ TRACEON ]` button next to Gmail/Outlook's **Important marker / Star**.
-   - **In-Page Mini-Scorecard**: Displays `Score: X/7 FLAGGED`, quick diagnosis, *"It isn't a final product yet!"* disclaimer, and `[ ⚡ See Full Results ]` deep-link.
+   - **In-Webmail Shield**: Injects a `[ TRACEON ]` button next to Gmail/Outlook's **Important marker / Star**.
+   - **In-Page Mini-Scorecard**: Displays `Score: X/7 FLAGGED`, quick diagnosis, *"It isn't a final product yet!"* disclaimer, and `[ See Full Results ]` deep-link.
 
 5. **Legal & Courtroom Evidence Suite (`reporting/` & `web/templates/`)**:
    - Section 65B Indian Evidence Act / Section 63 BSA 2023 certified PDF evidence dossiers.
@@ -37,7 +37,7 @@
 
 ---
 
-## 🚀 Quick Start Guide
+## Quick Start Guide
 
 ### 1. Start the TRACEON SOC Server
 ```powershell
@@ -56,11 +56,11 @@ Open **`http://127.0.0.1:8000`** in your browser to view the Cyber HUD Studio.
    ```
    D:\TraceON\extension
    ```
-5. Open [Gmail](https://mail.google.com) or [Outlook](https://outlook.live.com) — you will see the glowing `[ 🛡️ TRACEON ]` button next to email rows!
+5. Open [Gmail](https://mail.google.com) or [Outlook](https://outlook.live.com) - you will see the `[ TRACEON ]` button next to email rows.
 
 ---
 
-## ⚖️ Legal & Privacy Compliance
+## Legal & Privacy Compliance
 
 - **Indian IT Act, 2000**: Compliant with electronic record integrity standards.
 - **DPDPA 2023 & GDPR Art. 5(1)(e)**: Ephemeral RAM lifecycle with automatic 10-minute purge.
