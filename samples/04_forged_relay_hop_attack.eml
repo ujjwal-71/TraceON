@@ -1,0 +1,18 @@
+From: Financial Audits <audits@bank-internal.com>
+To: accounting@company.com
+Subject: Notice of Immediate Audit Compliance & Discrepancy Review
+Date: Sun, 30 Aug 2026 12:00:00 +0000
+Message-ID: <forged-hop-004@bank-internal.com>
+Return-Path: <audits@bank-internal.com>
+Received: from mx.internal-gateway.com (mx.internal-gateway.com [10.0.0.1])
+          by mx.company.com with ESMTPS id for100; Sun, 30 Aug 2026 12:00:00 +0000
+Received: from forged-mail-server.com (forged-mail-server.com [185.220.101.5])
+          by mx.internal-gateway.com with ESMTPS id for099; Sun, 30 Aug 2026 12:05:00 +0000
+Authentication-Results: mx.company.com; spf=neutral
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Attention Accounting Team,
+
+Please find attached the immediate discrepancy compliance checklist for review.
+Immediate action is required to avoid financial regulatory penalties.

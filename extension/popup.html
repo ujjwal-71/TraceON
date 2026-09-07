@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRACEON Extension</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="popup-container">
+        
+        <!-- Top Bar: Left Toggle, Right Full Site Button -->
+        <header class="top-bar">
+            <div class="toggle-container" title="Toggle active in-box scanning on Gmail & Outlook">
+                <label class="switch">
+                    <input type="checkbox" id="shieldToggle" checked>
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-label" id="shieldStatusText">Shield ON</span>
+            </div>
+
+            <button id="fullSiteBtn" class="full-site-btn" title="Open TRACEON Web Console">
+                <span>Go to full site</span>
+                <span class="arrow">↗</span>
+            </button>
+        </header>
+
+        <!-- Main Body: Round Upload Button in Middle -->
+        <main class="main-body">
+            <div class="brand-title">
+                <span class="brand-name">TRACEON</span>
+                <span class="brand-sub">AI FORENSICS</span>
+            </div>
+
+            <!-- Middle Round Upload Button -->
+            <div class="round-upload-wrapper" id="dropArea">
+                <button class="round-upload-btn" id="uploadBtn" title="Click or drop .eml file to scan">
+                    <div class="scan-laser-circle"></div>
+                    <div class="icon-circle">
+                        <svg class="shield-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                    <span class="btn-text">SCAN EMAIL</span>
+                    <span class="btn-subtext">Drop .eml or click</span>
+                </button>
+                <input type="file" id="fileInput" accept=".eml,.msg,.txt" style="display: none;">
+            </div>
+
+            <div id="scanStatus" class="scan-status-text">Ready &bull; RAM-Only Ephemeral Processing</div>
+        </main>
+
+        <!-- Bottom Footer -->
+        <footer class="bottom-bar">
+            <span class="status-dot"></span>
+            <span id="backendStatus">Connected: 127.0.0.1:8000</span>
+        </footer>
+
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

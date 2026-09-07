@@ -1,0 +1,223 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+    width: 320px;
+    height: 380px;
+    background-color: #030712;
+    color: #E2E8F0;
+    overflow: hidden;
+}
+
+.popup-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 14px;
+    background: radial-gradient(circle at 50% 10%, rgba(6, 182, 212, 0.12), transparent 70%), #030712;
+}
+
+/* Top Bar */
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(6, 182, 212, 0.2);
+}
+
+.toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 32px;
+    height: 18px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #1E293B;
+    border-radius: 18px;
+    transition: 0.3s;
+    border: 1px solid #334155;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 12px;
+    width: 12px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+input:checked + .slider {
+    background-color: #0284C7;
+    border-color: #06B6D4;
+}
+
+input:checked + .slider:before {
+    transform: translateX(14px);
+}
+
+.toggle-label {
+    font-size: 10px;
+    font-family: monospace;
+    color: #06B6D4;
+    font-weight: bold;
+}
+
+.full-site-btn {
+    background: #071124;
+    border: 1px solid rgba(6, 182, 212, 0.4);
+    color: #94A3B8;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: 0.2s;
+}
+
+.full-site-btn:hover {
+    color: #38BDF8;
+    border-color: #38BDF8;
+    background: #0B1E3D;
+}
+
+/* Main Body */
+.main-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 6px;
+}
+
+.brand-title {
+    text-align: center;
+}
+
+.brand-name {
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: white;
+    font-family: monospace;
+}
+
+.brand-sub {
+    font-size: 8px;
+    font-family: monospace;
+    color: #06B6D4;
+    display: block;
+    letter-spacing: 1px;
+}
+
+/* Round Upload Button in Middle */
+.round-upload-wrapper {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.round-upload-btn {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #0B1A38 0%, #071124 100%);
+    border: 2px solid rgba(6, 182, 212, 0.6);
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.35), inset 0 0 15px rgba(6, 182, 212, 0.2);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.round-upload-btn:hover {
+    transform: scale(1.04);
+    border-color: #38BDF8;
+    box-shadow: 0 0 35px rgba(56, 189, 248, 0.5), inset 0 0 20px rgba(56, 189, 248, 0.3);
+}
+
+.shield-svg {
+    width: 28px;
+    height: 28px;
+    color: #38BDF8;
+}
+
+.btn-text {
+    font-size: 11px;
+    font-weight: 900;
+    font-family: monospace;
+    color: white;
+    letter-spacing: 1px;
+}
+
+.btn-subtext {
+    font-size: 8px;
+    color: #94A3B8;
+    font-family: sans-serif;
+}
+
+.scan-status-text {
+    font-size: 10px;
+    color: #64748B;
+    font-family: monospace;
+    text-align: center;
+}
+
+/* Bottom Bar */
+.bottom-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 9px;
+    font-family: monospace;
+    color: #64748B;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #10B981;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #10B981;
+}

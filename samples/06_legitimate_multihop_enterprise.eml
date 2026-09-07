@@ -1,0 +1,20 @@
+From: GitHub Notifications <notifications@github.com>
+To: developer@techcompany.com
+Subject: [GitHub] Security Advisory: New Vulnerability Resolved in dependencies
+Date: Sun, 30 Aug 2026 14:00:00 +0000
+Message-ID: <gh-clean-006@github.com>
+Return-Path: <noreply@github.com>
+Received: from out-1.smtp.github.com (out-1.smtp.github.com [192.30.252.192])
+          by mx.google.com with ESMTPS id gh1122
+          for <developer@techcompany.com>; Sun, 30 Aug 2026 14:00:01 +0000
+Authentication-Results: mx.google.com; dkim=pass header.i=@github.com; spf=pass (google.com: domain of noreply@github.com designates 192.30.252.192 as permitted sender) smtp.mailfrom=noreply@github.com; dmarc=pass (p=REJECT)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Hello,
+
+A security advisory has been published for a repository you watch.
+No action is required if your build pipelines are set to automated dependency updates.
+
+Best,
+The GitHub Team

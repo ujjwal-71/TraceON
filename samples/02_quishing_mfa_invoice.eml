@@ -1,0 +1,20 @@
+From: Microsoft 365 Security <security-update@microsoft-mfa-support.com>
+To: victim@company.com
+Subject: [ACTION REQUIRED] Mandatory MFA Re-Authentication - Scan Attached QR Code
+Date: Sun, 30 Aug 2026 10:30:00 +0000
+Message-ID: <quish-mfa-002@microsoft-mfa-support.com>
+Return-Path: <bounce@microsoft-mfa-support.com>
+Received: from relay.panama-bulletproof.net (relay.panama-bulletproof.net [45.154.255.80])
+          by mx.company.com with ESMTPS id qsh991; Sun, 30 Aug 2026 10:30:02 +0000
+Authentication-Results: mx.company.com; spf=fail (ip=45.154.255.80); dmarc=fail
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Dear Employee,
+
+Your Microsoft 365 Authenticator session has expired due to our new zero-trust compliance policy.
+To maintain access to your corporate inbox, please scan the QR code using your mobile device or visit http://185.220.101.5/mfa-login immediately.
+
+Failure to verify within 4 hours will result in permanent account deactivation.
+
+Microsoft 365 Identity Security Team

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRACEON // Privacy Policy & Zero-Retention Notice</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { background-color: #030712; color: #E2E8F0; font-family: ui-sans-serif, system-ui, sans-serif; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-6 max-w-4xl mx-auto space-y-8">
+    
+    <header class="flex items-center justify-between border-b border-cyan-900/50 pb-4">
+        <a href="/" class="flex items-center space-x-2 text-cyan-400 font-bold hover:text-cyan-300 transition">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            <span>Back to TRACEON Dashboard</span>
+        </a>
+        <div class="text-xs font-mono text-slate-400">Compliance Standard: DPDPA 2023 & GDPR Art. 5(1)(e)</div>
+    </header>
+
+    <main class="space-y-6 bg-[#071124] p-8 rounded-2xl border border-cyan-500/30 shadow-xl">
+        <div class="space-y-2">
+            <div class="inline-block px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800 text-[11px] font-mono font-bold uppercase">
+                🛡️ Zero-Disk Retention Policy Verified
+            </div>
+            <h1 class="text-2xl font-black text-white">Privacy Policy & Ephemeral Data Lifecycle</h1>
+            <p class="text-xs text-slate-400">Effective Date: September 2026 &bull; TRACEON Defensive Cyber Platform</p>
+        </div>
+
+        <section class="space-y-3 text-xs leading-relaxed text-slate-300">
+            <h2 class="text-sm font-bold text-cyan-400 uppercase tracking-wider">1. Core Zero-Retention Principle</h2>
+            <p>
+                TRACEON is architected strictly as an ephemeral diagnostic tool. When you upload or synchronize an email:
+            </p>
+            <ul class="list-disc pl-5 space-y-1 text-slate-300">
+                <li><strong>RAM-Only Processing:</strong> Email bodies, headers, and attachments are processed strictly in volatile computer memory (RAM).</li>
+                <li><strong>Zero Permanent Database:</strong> We do not store, index, or archive raw emails on persistent disks or external cloud databases.</li>
+                <li><strong>10-Minute Ephemeral TTL:</strong> Memory records automatically expire and are permanently wiped by an automated background sweep after 10 minutes.</li>
+                <li><strong>Instant Manual Purge:</strong> You may instantly destroy all in-memory traces of an analyzed case by clicking the "Purge Evidence from RAM" button on the scorecard.</li>
+            </ul>
+        </section>
+
+        <section class="space-y-3 text-xs leading-relaxed text-slate-300">
+            <h2 class="text-sm font-bold text-cyan-400 uppercase tracking-wider">2. Zero Third-Party Tracking & Cookies</h2>
+            <p>
+                TRACEON operates with <strong>Zero Third-Party Advertising Cookies</strong> and zero tracking scripts (no Google Analytics, no Facebook Pixels). 
+                We use strictly browser-local <code>localStorage</code> to store non-identifying UI preferences (such as dark mode and your preferred local extension API endpoint).
+            </p>
+        </section>
+
+        <section class="space-y-3 text-xs leading-relaxed text-slate-300">
+            <h2 class="text-sm font-bold text-cyan-400 uppercase tracking-wider">3. Cryptographic Hashes for Court Evidence</h2>
+            <p>
+                To support digital forensics under Section 65B of the Indian Evidence Act and Section 63 of Bharatiya Sakshya Adhiniyam (BSA) 2023, 
+                TRACEON generates SHA-256 evidence checksums of analyzed artifacts. These mathematical hashes verify artifact integrity without storing the underlying message.
+            </p>
+        </section>
+
+        <section class="space-y-3 text-xs leading-relaxed text-slate-300">
+            <h2 class="text-sm font-bold text-cyan-400 uppercase tracking-wider">4. Data Sharing & Third Parties</h2>
+            <p>
+                We do not sell, rent, or monetize any diagnostic telemetry. When live geolocation resolution is enabled, public IP addresses (and no email content) 
+                are queried against standard autonomous system routing tables to triangulate server geography.
+            </p>
+        </section>
+    </main>
+
+    <footer class="text-center text-[11px] text-slate-500 font-mono py-4">
+        TRACEON Security Forensics &bull; Open-Source &bull; Zero Data Monetization
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+From: "PayPal Security Alert" <support@pаypal.com>
+To: user@target-domain.com
+Subject: Unauthorized Login Attempt Detected on Your PayPal Account
+Date: Sun, 30 Aug 2026 11:00:00 +0000
+Message-ID: <paypal-spoof-003@pаypal.com>
+Return-Path: <support@pаypal.com>
+Received: from vps-ovh-eu.net (vps-ovh-eu.net [51.15.42.18])
+          by mx.target-domain.com with ESMTPS id pay902; Sun, 30 Aug 2026 11:00:01 +0000
+Authentication-Results: mx.target-domain.com; spf=softfail; dmarc=fail
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Dear Customer,
+
+We detected an unauthorized login attempt from an unknown device in Moscow, Russia.
+Please verify your PayPal credentials at https://pаypal.com/security-checkpoint to secure your account and cancel any pending transactions.
+
+Thank you,
+PayPal Customer Trust & Safety

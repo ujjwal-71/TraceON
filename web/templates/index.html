@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRACEON // AI Email Forensic & Threat Intelligence Platform</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        vt: {
+                            bg: '#030712',
+                            card: '#0B0F19',
+                            border: '#1E293B',
+                            accent: '#0284C7',
+                            accentHover: '#0369A1',
+                            cyan: '#06B6D4'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Leaflet Map CSS/JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Cytoscape Graph JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+
+    <style>
+        body {
+            background-color: #030712;
+            color: #E2E8F0;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .radar-sweep {
+            animation: radar 2.5s linear infinite;
+        }
+        @keyframes radar {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .scan-laser {
+            animation: laserMove 2.2s ease-in-out infinite alternate;
+        }
+        @keyframes laserMove {
+            0% { top: 0%; opacity: 0.8; }
+            100% { top: 96%; opacity: 0.8; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
+
+    <!-- ========================================================================= -->
+    <!-- TOP NAVIGATION BAR -->
+    <!-- ========================================================================= -->
+    <nav class="border-b border-vt-border bg-[#050B14]/80 backdrop-blur-md sticky top-0 z-50 px-4 lg:px-8 py-3.5">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            
+            <!-- Logo & Title -->
+            <a href="/" class="flex items-center space-x-3 group">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 p-[1.5px] shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+                    <div class="w-full h-full bg-[#071124] rounded-xl flex items-center justify-center">
+                        <i data-lucide="shield-check" class="w-5 h-5 text-cyan-400 group-hover:scale-110 transition"></i>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-black text-base tracking-widest text-white font-mono">TRACEON</span>
+                        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800 uppercase font-bold">RAM-ONLY</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400 font-mono tracking-tight">AI Email Forensics & Zero-Retention Sentinel</p>
+                </div>
+            </a>
+
+            <!-- Right Actions -->
+            <div class="flex items-center space-x-3 text-xs">
+                <button onclick="showHistoryModal()" class="px-3 py-1.5 rounded-lg bg-[#071124] hover:bg-[#0C1E3D] border border-cyan-900/60 text-slate-300 font-mono transition flex items-center space-x-1.5">
+                    <i data-lucide="clock" class="w-4 h-4 text-cyan-400"></i>
+                    <span>Ephemeral Session (<span id="navHistoryCount">0</span>)</span>
+                </button>
+                <button onclick="showHomePage()" id="scanAnotherBtn" class="hidden px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold transition flex items-center space-x-1.5 shadow-md shadow-cyan-500/20">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Scan New Email</span>
+                </button>
+            </div>
+
+        </div>
+    </nav>
+
+
+    <!-- ========================================================================= -->
+    <!-- VIEW 1: HOME CYBER HUD INGESTION -->
+    <!-- ========================================================================= -->
+    <main id="homeView" class="flex-1 flex flex-col items-center justify-center px-4 py-8 max-w-5xl mx-auto w-full">
+        
+        <!-- Background Ambient Glow -->
+        <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-cyan-500/10 blur-[120px] pointer-events-none rounded-full"></div>
+
+        <div class="w-full flex flex-col items-center space-y-6 relative z-10">
+            
+            <div class="text-center space-y-2 max-w-xl">
+                <h1 class="text-2xl sm:text-3xl font-black text-white tracking-wide font-sans">
+                    Email Forensics & Reverse Route Intelligence
+                </h1>
+                <p class="text-xs text-slate-400 font-mono">
+                    7-Engine Detection &bull; Reverse Hop Triangulation &bull; Ephemeral RAM Processing
+                </p>
+            </div>
+
+            <!-- Ingestion Mode Tabs -->
+            <div class="flex items-center p-1 rounded-2xl bg-[#071124] border border-cyan-900/60 shadow-lg text-xs font-mono">
+                <button onclick="switchHomeInputTab('file')" id="homeTabBtn-file" class="px-5 py-2 rounded-xl bg-gradient-to-r from-[#0C1E3D] to-[#0F2852] border border-cyan-400/80 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.3)] transition font-bold">
+                    FILE UPLOAD
+                </button>
+                <button onclick="switchHomeInputTab('headers')" id="homeTabBtn-headers" class="px-5 py-2 rounded-xl text-slate-400 hover:text-white transition">
+                    PASTE HEADERS
+                </button>
+                <button onclick="switchHomeInputTab('gmail')" id="homeTabBtn-gmail" class="px-5 py-2 rounded-xl text-slate-400 hover:text-white transition">
+                    GMAIL / DEMO
+                </button>
+            </div>
+
+            <!-- Tab 1: File Dropzone -->
+            <div id="homeInput-file" class="w-full max-w-xl flex flex-col items-center">
+                <div onclick="document.getElementById('emailFileInput').click()" class="w-full p-8 rounded-2xl border-2 border-dashed border-cyan-500/40 hover:border-cyan-400 bg-[#071124]/90 hover:bg-[#0B1A38] transition cursor-pointer flex flex-col items-center justify-center space-y-4 shadow-xl relative overflow-hidden group">
+                    <div class="scan-laser absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
+                    
+                    <div class="w-16 h-16 rounded-2xl bg-cyan-950/60 border border-cyan-700/60 flex items-center justify-center text-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.25)] group-hover:scale-105 transition">
+                        <i data-lucide="file-code" class="w-8 h-8"></i>
+                    </div>
+
+                    <div class="text-center space-y-1">
+                        <p class="text-sm font-bold text-white">Drop .eml / .msg file here or click to browse</p>
+                        <p class="text-[11px] text-slate-400 font-mono">Processes strictly in volatile RAM &bull; Auto-purged after 10 mins</p>
+                    </div>
+
+                    <span class="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs font-mono shadow-md transition">
+                        CHOOSE FILE
+                    </span>
+                    <input type="file" id="emailFileInput" accept=".eml,.msg,.txt" onchange="handleFileSelect(event)" class="hidden">
+                </div>
+            </div>
+
+            <!-- Tab 2: Raw Headers -->
+            <div id="homeInput-headers" class="hidden w-full max-w-xl flex-col space-y-3">
+                <textarea id="rawHeadersInput" rows="6" placeholder="Paste RFC 5322 raw email headers or MIME source here..." class="w-full p-4 bg-[#071124] border border-cyan-500/40 rounded-2xl text-xs font-mono text-slate-200 focus:outline-none focus:border-cyan-400 shadow-inner"></textarea>
+                <button onclick="analyzeRawHeadersText()" class="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold text-xs font-mono shadow-md transition">
+                    Execute Forensic Header Scan
+                </button>
+            </div>
+
+            <!-- Tab 3: Gmail Demo Inbox -->
+            <div id="homeInput-gmail" class="hidden w-full max-w-2xl flex-col space-y-4">
+                <div class="p-4 rounded-xl bg-[#071124] border border-cyan-500/40 space-y-3">
+                    <div class="flex items-center justify-between border-b border-cyan-950 pb-2">
+                        <span class="text-xs font-bold text-cyan-300 font-mono">Demo Enterprise Inbox (6 Threat Archetypes)</span>
+                        <span class="text-[10px] text-emerald-400 font-mono">● LIVE DEMO READY</span>
+                    </div>
+                    <div class="overflow-x-auto max-h-56">
+                        <table class="w-full text-left text-xs font-sans">
+                            <tbody id="gmailInboxTableBody" class="divide-y divide-cyan-950/60 text-slate-300"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-[11px] text-slate-500 text-center font-mono max-w-md">
+                🔒 Zero-Disk Retention: Uploaded emails are analyzed in-memory and automatically wiped after 10 minutes.
+            </p>
+
+        </div>
+    </main>
+
+
+    <!-- ========================================================================= -->
+    <!-- VIEW 2: 2-SECOND SCANNING ANIMATION -->
+    <!-- ========================================================================= -->
+    <main id="scanningView" class="hidden flex-1 flex flex-col items-center justify-center px-4 py-16 max-w-2xl mx-auto w-full text-center space-y-8">
+        <div class="relative w-32 h-32 flex items-center justify-center">
+            <div class="absolute inset-0 rounded-full border border-cyan-500/40 animate-ping opacity-30"></div>
+            <div class="absolute inset-2 rounded-full border-2 border-vt-border"></div>
+            <div class="absolute inset-2 rounded-full overflow-hidden">
+                <div class="w-full h-full bg-gradient-to-tr from-transparent via-cyan-500/20 to-cyan-500/40 radar-sweep origin-center"></div>
+            </div>
+            <div class="w-14 h-14 rounded-full bg-vt-card border-2 border-cyan-500 flex items-center justify-center text-cyan-400 shadow-lg shadow-cyan-500/40 relative z-10">
+                <i data-lucide="shield" class="w-7 h-7 animate-pulse"></i>
+            </div>
+        </div>
+
+        <div class="space-y-3 max-w-md w-full">
+            <h2 class="text-lg font-bold text-white tracking-wide">Executing 7-Engine Forensic Triage...</h2>
+            <p id="liveScanEngineText" class="text-xs font-mono text-cyan-400 animate-pulse">
+                [1/7] Ingesting RFC 5322 MIME & Generating SHA-256 Hash...
+            </p>
+            <div class="w-full bg-vt-card rounded-full h-2 overflow-hidden border border-vt-border mt-3">
+                <div id="scanProgressBarFill" class="bg-gradient-to-r from-blue-600 to-cyan-400 h-2 rounded-full transition-all duration-300 w-1/4"></div>
+            </div>
+        </div>
+    </main>
+
+
+    <!-- ========================================================================= -->
+    <!-- VIEW 3: RESULTS STUDIO -->
+    <!-- ========================================================================= -->
+    <main id="resultsView" class="hidden flex-1 px-4 lg:px-8 py-6 max-w-7xl mx-auto w-full space-y-6">
+        
+        <!-- Scorecard Header -->
+        <div class="bg-vt-card p-6 rounded-2xl border border-vt-border shadow-xl space-y-4">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                
+                <!-- Left: Ratio & Subject -->
+                <div class="flex items-center space-x-6">
+                    <div id="resScoreCircle" class="w-22 h-22 rounded-full border-4 border-slate-700 flex flex-col items-center justify-center bg-[#071124] flex-shrink-0 shadow-lg">
+                        <span id="resScoreRatio" class="text-2xl font-black font-mono text-slate-400">0/7</span>
+                        <span class="text-[8px] uppercase font-bold text-slate-400 font-mono">FLAGGED</span>
+                    </div>
+
+                    <div class="space-y-1">
+                        <div class="flex items-center space-x-3">
+                            <h2 id="resVerdictTitle" class="text-lg font-black text-white">Scanning completed</h2>
+                            <span id="resRiskBadge" class="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700 uppercase">
+                                VERIFIED
+                            </span>
+                        </div>
+                        <p id="resSubjectLine" class="text-xs font-semibold text-slate-200 line-clamp-1">Subject: Loading...</p>
+                        <p id="resSenderLine" class="text-[11px] text-slate-400 font-mono">From: Loading...</p>
+                    </div>
+                </div>
+
+                <!-- Right: Action Buttons -->
+                <div class="flex items-center space-x-2 flex-wrap gap-2">
+                    <button onclick="exportDossierPDF()" class="px-3 py-2 rounded-xl bg-[#071124] hover:bg-[#0C1E3D] text-slate-200 text-xs font-bold border border-cyan-900/60 transition flex items-center space-x-1.5 shadow-sm">
+                        <i data-lucide="file-text" class="w-4 h-4 text-cyan-400"></i>
+                        <span>PDF Dossier</span>
+                    </button>
+                    <button onclick="exportSTIXBundle()" class="px-3 py-2 rounded-xl bg-[#071124] hover:bg-[#0C1E3D] text-slate-200 text-xs font-bold border border-cyan-900/60 transition flex items-center space-x-1.5 shadow-sm">
+                        <i data-lucide="share-2" class="w-4 h-4 text-blue-400"></i>
+                        <span>STIX 2.1</span>
+                    </button>
+                    <button onclick="purgeCaseFromRAM()" class="px-3 py-2 rounded-xl bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 text-xs font-bold border border-rose-800 transition flex items-center space-x-1.5 shadow-sm">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <span>Purge from RAM</span>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Executive Threat Diagnosis -->
+            <div class="bg-[#070E1E] p-4 lg:p-5 rounded-xl border border-cyan-500/40 shadow-inner space-y-3">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-cyan-900/50 pb-2">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="microscope" class="w-4 h-4 text-cyan-400"></i>
+                        <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-200">Forensic Threat Diagnosis</h3>
+                    </div>
+                    <span id="resDiagnosticBadge" class="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">DIAGNOSING</span>
+                </div>
+                <p id="resRootCauseHeadline" class="text-xs font-bold text-white font-sans">Analyzing...</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                    <div class="p-3 rounded-lg bg-[#091326] border border-rose-900/60 space-y-2">
+                        <div class="text-[11px] font-bold text-rose-400 uppercase tracking-wide flex items-center space-x-1.5">
+                            <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+                            <span>1. What Exactly Is Wrong (Findings)</span>
+                        </div>
+                        <div id="resWhatIsWrongList" class="space-y-1.5 text-xs text-slate-300"></div>
+                    </div>
+                    <div class="p-3 rounded-lg bg-[#091326] border border-cyan-800/60 space-y-2">
+                        <div class="text-[11px] font-bold text-cyan-400 uppercase tracking-wide flex items-center space-x-1.5">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+                            <span>2. Recommended Action Plan</span>
+                        </div>
+                        <div id="resUserActionList" class="space-y-1 text-xs text-slate-300"></div>
+                        <div id="resSocActionList" class="space-y-1 text-xs text-cyan-200 pt-1.5 border-t border-cyan-950"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8-Tab Investigation Studio -->
+        <div class="bg-vt-card rounded-2xl border border-vt-border shadow-xl overflow-hidden">
+            
+            <div class="flex border-b border-vt-border bg-[#071124] px-4 pt-2.5 space-x-2 overflow-x-auto text-xs font-bold tracking-wider font-mono">
+                <button onclick="switchResultTab('detectionsTab')" id="tabBtn-detectionsTab" class="tab-btn px-3.5 py-2 rounded-t-xl bg-vt-card text-cyan-400 border-t-2 border-cyan-400 flex items-center space-x-1.5 flex-shrink-0">
+                    <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
+                    <span>DETECTION (<span id="resTabEngineRatio">0/7</span>)</span>
+                </button>
+                <button onclick="switchResultTab('copilotTab')" id="tabBtn-copilotTab" class="tab-btn px-3.5 py-2 rounded-t-xl text-slate-400 hover:text-slate-200 flex items-center space-x-1.5 flex-shrink-0">
+                    <i data-lucide="bot" class="w-3.5 h-3.5 text-cyan-400"></i>
+                    <span>AI COPILOT</span>
+                </button>
+                <button onclick="switchResultTab('logicTab')" id="tabBtn-logicTab" class="tab-btn px-3.5 py-2 rounded-t-xl text-slate-400 hover:text-slate-200 flex items-center space-x-1.5 flex-shrink-0">
+                    <i data-lucide="cpu" class="w-3.5 h-3.5 text-blue-400"></i>
+                    <span>LOGIC PROOFS</span>
+                </button>
+                <button onclick="switchResultTab('geoTab')" id="tabBtn-geoTab" class="tab-btn px-3.5 py-2 rounded-t-xl text-slate-400 hover:text-slate-200 flex items-center space-x-1.5 flex-shrink-0">
+                    <i data-lucide="globe" class="w-3.5 h-3.5 text-emerald-400"></i>
+                    <span>RELAYS & GEO</span>
+                </button>
+                <button onclick="switchResultTab('authTab')" id="tabBtn-authTab" class="tab-btn px-3.5 py-2 rounded-t-xl text-slate-400 hover:text-slate-200 flex items-center space-x-1.5 flex-shrink-0">
+                    <i data-lucide="key" class="w-3.5 h-3.5"></i>
+                    <span>AUTHENTICATION</span>
+                </button>
+                <button onclick="switchResultTab('behaviorTab')" id="tabBtn-behaviorTab" class="tab-btn px-3.5 py-2 rounded-t-xl text-slate-400 hover:text-slate-200 flex items-center space-x-1.5 flex-shrink-0">
+                    <i data-lucide="brain" class="w-3.5 h-3.5"></i>
+                    <span>AI & BEHAVIOR</span>
+                </button>
+                <button onclick="switchResultTab('mitreTab')" id="tabBtn-mitreTab" class="tab-btn px-3.5 py-2 rounded-t-xl text-slate-400 hover:text-slate-200 flex items-center space-x-1.5 flex-shrink-0">
+                    <i data-lucide="crosshair" class="w-3.5 h-3.5 text-rose-400"></i>
+                    <span>MITRE ATT&CK</span>
+                </button>
+                <button onclick="switchResultTab('graphTab')" id="tabBtn-graphTab" class="tab-btn px-3.5 py-2 rounded-t-xl text-slate-400 hover:text-slate-200 flex items-center space-x-1.5 flex-shrink-0">
+                    <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+                    <span>GRAPH</span>
+                </button>
+                <button onclick="switchResultTab('detailsTab')" id="tabBtn-detailsTab" class="tab-btn px-3.5 py-2 rounded-t-xl text-slate-400 hover:text-slate-200 flex items-center space-x-1.5 flex-shrink-0">
+                    <i data-lucide="file-code" class="w-3.5 h-3.5"></i>
+                    <span>HEADERS</span>
+                </button>
+            </div>
+
+            <div class="p-6">
+                
+                <!-- Tab 1: Detections -->
+                <div id="detectionsTab" class="tab-pane space-y-4">
+                    <div class="overflow-x-auto border border-vt-border rounded-xl">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-[#071124] text-slate-400 border-b border-vt-border font-mono">
+                                <tr>
+                                    <th class="py-2.5 px-4 w-60">Security Engine</th>
+                                    <th class="py-2.5 px-3 w-36">Category</th>
+                                    <th class="py-2.5 px-3 w-28">Result</th>
+                                    <th class="py-2.5 px-4">Diagnostic Rationale</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resEnginesTableBody" class="divide-y divide-vt-border text-slate-200"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab 2: AI Copilot -->
+                <div id="copilotTab" class="tab-pane hidden space-y-4">
+                    <div class="flex items-center space-x-2 overflow-x-auto pb-1 text-xs">
+                        <button onclick="insertCopilotPrompt('Why was this email flagged?')" class="px-3 py-1.5 rounded-lg bg-[#071124] hover:bg-[#0C1E3D] text-slate-300 border border-cyan-900/60 text-xs">
+                            💡 Why was this flagged?
+                        </button>
+                        <button onclick="insertCopilotPrompt('Is it safe to open the attachment?')" class="px-3 py-1.5 rounded-lg bg-[#071124] hover:bg-[#0C1E3D] text-slate-300 border border-cyan-900/60 text-xs">
+                            🛑 Is the attachment safe?
+                        </button>
+                        <button onclick="insertCopilotPrompt('Does the sending server match the claimed sender?')" class="px-3 py-1.5 rounded-lg bg-[#071124] hover:bg-[#0C1E3D] text-slate-300 border border-cyan-900/60 text-xs">
+                            🏢 Does server match sender?
+                        </button>
+                        <button onclick="insertCopilotPrompt('Draft a security warning email for my team')" class="px-3 py-1.5 rounded-lg bg-[#071124] hover:bg-[#0C1E3D] text-slate-300 border border-cyan-900/60 text-xs">
+                            📝 Draft team warning
+                        </button>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-[#060D1A] border border-vt-border space-y-3 max-h-96 overflow-y-auto" id="copilotChatMessages">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-cyan-950 border border-cyan-700 text-cyan-400 flex items-center justify-center flex-shrink-0 mt-1">
+                                <i data-lucide="bot" class="w-4 h-4"></i>
+                            </div>
+                            <div class="p-3.5 rounded-xl bg-[#09152E] border border-cyan-900/60 text-xs text-slate-200 leading-relaxed max-w-2xl font-sans whitespace-pre-wrap" id="copilotInitialGreeting">
+                                Loading AI briefing...
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-2 bg-[#071124] p-2 rounded-xl border border-cyan-500/40">
+                        <input type="text" id="copilotChatInput" onkeydown="if(event.key==='Enter') sendCopilotChat()" placeholder="Ask TRACEON Copilot about this email, server hops, or next steps..." class="flex-1 bg-transparent px-3 text-xs text-slate-200 focus:outline-none">
+                        <button onclick="sendCopilotChat()" id="copilotSendBtn" class="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition flex items-center space-x-1.5">
+                            <span>Ask</span>
+                            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Declarative Logic Proofs -->
+                <div id="logicTab" class="tab-pane hidden space-y-4">
+                    <div class="p-3.5 rounded-xl bg-[#071124] border border-blue-900/60 flex items-center justify-between">
+                        <div>
+                            <h4 class="text-xs font-bold text-white uppercase font-mono">Formal Declarative Deductive Proofs</h4>
+                            <p class="text-[11px] text-slate-400">Prolog-style forward-chaining axioms evaluated with zero hallucinations.</p>
+                        </div>
+                        <span id="resLogicVerdictBadge" class="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-blue-950 text-blue-300 border border-blue-700">EVALUATED</span>
+                    </div>
+                    <div id="resLogicProofsContainer" class="space-y-3"></div>
+                </div>
+
+                <!-- Tab 4: Geo & Hops -->
+                <div id="geoTab" class="tab-pane hidden space-y-4">
+                    <div id="hopMap" class="w-full h-72 rounded-xl border border-vt-border overflow-hidden bg-[#071124]"></div>
+                    <div class="overflow-x-auto border border-vt-border rounded-xl">
+                        <table class="w-full text-left text-xs font-mono">
+                            <thead class="bg-[#071124] text-slate-400 border-b border-vt-border">
+                                <tr>
+                                    <th class="py-2 px-3">Hop</th>
+                                    <th class="py-2 px-3">From Host</th>
+                                    <th class="py-2 px-3">IP Address</th>
+                                    <th class="py-2 px-3">Location</th>
+                                    <th class="py-2 px-3">ISP / ASN</th>
+                                    <th class="py-2 px-3">Delay (Δt)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resHopsTableBody" class="divide-y divide-vt-border text-slate-200"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab 5: Auth -->
+                <div id="authTab" class="tab-pane hidden space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="p-4 rounded-xl bg-[#071124] border border-vt-border space-y-1">
+                            <div class="flex justify-between items-center"><span class="text-xs text-slate-400 font-mono">SPF Check</span><span id="resSpfBadge" class="text-[10px] font-mono px-2 py-0.5 rounded font-bold">...</span></div>
+                            <p id="resSpfDetail" class="text-xs text-slate-300">...</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-[#071124] border border-vt-border space-y-1">
+                            <div class="flex justify-between items-center"><span class="text-xs text-slate-400 font-mono">DKIM Check</span><span id="resDkimBadge" class="text-[10px] font-mono px-2 py-0.5 rounded font-bold">...</span></div>
+                            <p id="resDkimDetail" class="text-xs text-slate-300">...</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-[#071124] border border-vt-border space-y-1">
+                            <div class="flex justify-between items-center"><span class="text-xs text-slate-400 font-mono">DMARC Alignment</span><span id="resDmarcBadge" class="text-[10px] font-mono px-2 py-0.5 rounded font-bold">...</span></div>
+                            <p id="resDmarcDetail" class="text-xs text-slate-300">...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 6: Behavior -->
+                <div id="behaviorTab" class="tab-pane hidden space-y-4">
+                    <div id="resAiTacticsContainer" class="space-y-3"></div>
+                </div>
+
+                <!-- Tab 7: MITRE -->
+                <div id="mitreTab" class="tab-pane hidden space-y-4">
+                    <div id="resMitreList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                </div>
+
+                <!-- Tab 8: Graph -->
+                <div id="graphTab" class="tab-pane hidden space-y-4">
+                    <div id="cyGraph" class="w-full h-80 rounded-xl border border-vt-border bg-[#071124]"></div>
+                </div>
+
+                <!-- Tab 9: Headers -->
+                <div id="detailsTab" class="tab-pane hidden space-y-4">
+                    <div class="overflow-x-auto border border-vt-border rounded-xl max-h-96">
+                        <table class="w-full text-left text-xs font-mono">
+                            <tbody id="resRawHeadersBody" class="divide-y divide-vt-border text-slate-300"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- ========================================================================= -->
+    <!-- EPHEMERAL SESSION MODAL -->
+    <!-- ========================================================================= -->
+    <div id="historyModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+        <div class="bg-[#071124] p-6 rounded-2xl border border-cyan-500/40 max-w-2xl w-full space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-cyan-950 pb-3">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="clock" class="w-4 h-4 text-cyan-400"></i>
+                    <h3 class="text-sm font-bold text-white font-mono">Ephemeral In-Memory Cases (10-Min TTL)</h3>
+                </div>
+                <button onclick="closeHistoryModal()" class="text-slate-400 hover:text-white">&times;</button>
+            </div>
+            <div id="historyModalList" class="space-y-2 max-h-72 overflow-y-auto text-xs"></div>
+            <div class="flex justify-end pt-2">
+                <button onclick="closeHistoryModal()" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-mono">Close</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================================================= -->
+    <!-- FOOTER WITH LEGAL LINKS -->
+    <!-- ========================================================================= -->
+    <footer class="border-t border-vt-border bg-[#050B14] px-4 py-4 text-center text-xs text-slate-500 space-y-2">
+        <div class="flex items-center justify-center space-x-6 text-[11px] font-mono">
+            <a href="/privacy" target="_blank" class="hover:text-cyan-400 transition">Privacy Policy (Zero-Retention)</a>
+            <span class="text-slate-700">&bull;</span>
+            <a href="/terms" target="_blank" class="hover:text-cyan-400 transition">Terms of Service</a>
+            <span class="text-slate-700">&bull;</span>
+            <span>Indian Evidence Act Sec 65B Certified</span>
+        </div>
+        <p class="text-[10px] text-slate-600 font-mono">
+            TRACEON Automated Threat Triangulation &bull; Educational & Defensive Cybersecurity Evaluation
+        </p>
+    </footer>
+
+
+    <!-- ========================================================================= -->
+    <!-- MASTER JAVASCRIPT -->
+    <!-- ========================================================================= -->
+    <script>
+        let currentCaseId = null;
+        let map = null;
+        let cy = null;
+        let copilotChatHistory = [];
+
+        window.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
+            loadDemoInbox();
+            updateHistoryCount();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const caseParam = urlParams.get("case_id");
+            if (caseParam) {
+                loadSpecificCase(caseParam);
+            }
+        });
+
+        function showHomePage() {
+            document.getElementById("resultsView").classList.add("hidden");
+            document.getElementById("scanningView").classList.add("hidden");
+            document.getElementById("homeView").classList.remove("hidden");
+            document.getElementById("scanAnotherBtn").classList.add("hidden");
+        }
+
+        function switchHomeInputTab(tab) {
+            document.getElementById("homeInput-file").classList.add("hidden");
+            document.getElementById("homeInput-headers").classList.add("hidden");
+            document.getElementById("homeInput-gmail").classList.add("hidden");
+
+            ['file', 'headers', 'gmail'].forEach(t => {
+                const btn = document.getElementById(`homeTabBtn-${t}`);
+                if (btn) btn.className = "px-5 py-2 rounded-xl text-slate-400 hover:text-white transition";
+            });
+
+            document.getElementById(`homeInput-${tab}`).classList.remove("hidden");
+            document.getElementById(`homeInput-${tab}`).classList.add("flex");
+
+            const activeBtn = document.getElementById(`homeTabBtn-${tab}`);
+            if (activeBtn) activeBtn.className = "px-5 py-2 rounded-xl bg-gradient-to-r from-[#0C1E3D] to-[#0F2852] border border-cyan-400/80 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.3)] transition font-bold";
+        }
+
+        function switchResultTab(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.className = "tab-btn px-3.5 py-2 rounded-t-xl text-slate-400 hover:text-slate-200 flex items-center space-x-1.5 flex-shrink-0";
+            });
+
+            document.getElementById(tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tabBtn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.className = "tab-btn px-3.5 py-2 rounded-t-xl bg-vt-card text-cyan-400 border-t-2 border-cyan-400 flex items-center space-x-1.5 flex-shrink-0";
+            }
+
+            if (tabId === 'geoTab' && map) setTimeout(() => map.invalidateSize(), 200);
+            if (tabId === 'graphTab') setTimeout(() => renderCytoscapeGraph(), 200);
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) startScan(file, null);
+        }
+
+        function analyzeRawHeadersText() {
+            const text = document.getElementById("rawHeadersInput").value;
+            if (!text.trim()) return alert("Please paste headers or email text.");
+            startScan(null, text);
+        }
+
+        function startScan(file, rawText) {
+            document.getElementById("homeView").classList.add("hidden");
+            document.getElementById("resultsView").classList.add("hidden");
+            document.getElementById("scanningView").classList.remove("hidden");
+
+            const progress = document.getElementById("scanProgressBarFill");
+            const engineText = document.getElementById("liveScanEngineText");
+
+            const formData = new FormData();
+            if (file) formData.append("file", file);
+            if (rawText) formData.append("raw_text", rawText);
+
+            const apiPromise = fetch("/api/analyze", { method: "POST", body: formData }).then(r => r.json());
+
+            progress.style.width = "20%";
+            setTimeout(() => { progress.style.width = "60%"; engineText.innerText = "[4/7] Cross-validating Cryptographic Auth & Homoglyphs..."; }, 600);
+            setTimeout(() => { progress.style.width = "90%"; engineText.innerText = "[7/7] Declarative Logic Engine Deducing Proof Chains..."; }, 1200);
+
+            setTimeout(async () => {
+                try {
+                    const res = await apiPromise;
+                    if (res.status === "success") {
+                        progress.style.width = "100%";
+                        renderResults(res.data);
+                    } else {
+                        alert("Scan failed: " + res.detail);
+                        showHomePage();
+                    }
+                } catch(e) {
+                    alert("Error: " + e.message);
+                    showHomePage();
+                }
+            }, 1800);
+        }
+
+        function renderResults(data) {
+            currentCaseId = data.case_id;
+            document.getElementById("scanningView").classList.add("hidden");
+            document.getElementById("resultsView").classList.remove("hidden");
+            document.getElementById("scanAnotherBtn").classList.remove("hidden");
+
+            const threat = data.threat_summary;
+            const headers = data.headers;
+            const flagged = threat.flagged_engines_count;
+            const total = threat.total_engines_count;
+
+            document.getElementById("resScoreRatio").innerText = `${flagged}/${total}`;
+            document.getElementById("resTabEngineRatio").innerText = `${flagged}/${total}`;
+
+            const circle = document.getElementById("resScoreCircle");
+            const vBadge = document.getElementById("resRiskBadge");
+            const vTitle = document.getElementById("resVerdictTitle");
+
+            if (flagged >= 3) {
+                circle.className = "w-22 h-22 rounded-full border-4 border-rose-500 flex flex-col items-center justify-center bg-rose-950/30 flex-shrink-0 shadow-lg shadow-rose-900/30";
+                vBadge.className = "text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-rose-950 text-rose-300 border border-rose-800 uppercase";
+                vBadge.innerText = "MALICIOUS";
+                vTitle.innerText = `${flagged} engines flagged this email as malicious`;
+            } else if (flagged >= 1) {
+                circle.className = "w-22 h-22 rounded-full border-4 border-amber-500 flex flex-col items-center justify-center bg-amber-950/30 flex-shrink-0 shadow-lg shadow-amber-900/30";
+                vBadge.className = "text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-800 uppercase";
+                vBadge.innerText = "SUSPICIOUS";
+                vTitle.innerText = `${flagged} engine detected suspicious indicators`;
+            } else {
+                circle.className = "w-22 h-22 rounded-full border-4 border-emerald-500 flex flex-col items-center justify-center bg-emerald-950/30 flex-shrink-0 shadow-lg shadow-emerald-900/30";
+                vBadge.className = "text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800 uppercase";
+                vBadge.innerText = "CLEAN & SAFE";
+                vTitle.innerText = "All security engines verified this email as clean";
+            }
+
+            document.getElementById("resSubjectLine").innerText = `Subject: ${headers.subject || '(No Subject)'}`;
+            document.getElementById("resSenderLine").innerText = `From: ${headers.from_raw}`;
+
+            // Executive Diagnostics
+            const diag = threat.diagnostics || {};
+            document.getElementById("resRootCauseHeadline").innerText = diag.root_cause || "Analysis complete.";
+            const dBadge = document.getElementById("resDiagnosticBadge");
+            dBadge.innerText = diag.threat_badge_text || "EVALUATED";
+            dBadge.className = `text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full uppercase ${diag.threat_badge_color === 'rose' ? 'bg-rose-950 text-rose-300 border border-rose-800' : (diag.threat_badge_color === 'amber' ? 'bg-amber-950 text-amber-300 border border-amber-800' : 'bg-emerald-950 text-emerald-300 border border-emerald-800')}`;
+
+            const wrongList = document.getElementById("resWhatIsWrongList");
+            wrongList.innerHTML = "";
+            (diag.what_is_wrong || []).forEach(w => {
+                wrongList.innerHTML += `<div class="flex items-start space-x-1.5"><span class="text-rose-400 font-bold">&bull;</span><span>${w}</span></div>`;
+            });
+
+            const uList = document.getElementById("resUserActionList");
+            uList.innerHTML = `<span class="text-[10px] font-mono font-bold text-amber-300 block mb-0.5">👤 For Employee:</span>`;
+            (diag.user_actions || []).forEach(u => {
+                uList.innerHTML += `<div class="pl-1">${u}</div>`;
+            });
+
+            const sList = document.getElementById("resSocActionList");
+            sList.innerHTML = `<span class="text-[10px] font-mono font-bold text-cyan-300 block mb-0.5">🛡️ For SOC Analyst:</span>`;
+            (diag.soc_actions || []).forEach(s => {
+                sList.innerHTML += `<div class="pl-1">${s}</div>`;
+            });
+
+            // 7 Engines Table
+            const tbody = document.getElementById("resEnginesTableBody");
+            tbody.innerHTML = "";
+            (data.engines_report || []).forEach(e => {
+                const color = e.status === "MALICIOUS" ? "text-rose-400" : (e.status === "SUSPICIOUS" ? "text-amber-400" : "text-emerald-400");
+                tbody.innerHTML += `
+                    <tr class="hover:bg-[#071124] transition">
+                        <td class="py-2.5 px-4 font-bold text-white">${e.name}</td>
+                        <td class="py-2.5 px-3 text-slate-400 font-mono text-[11px]">${e.category}</td>
+                        <td class="py-2.5 px-3 font-mono font-bold ${color}">${e.status}</td>
+                        <td class="py-2.5 px-4 text-slate-300">${e.details}</td>
+                    </tr>
+                `;
+            });
+
+            // Declarative Logic Proofs
+            renderLogicProofs(threat.symbolic_proofs);
+
+            // Relays Map & Table
+            renderHops(data.hop_trace.hops);
+
+            // Auth
+            renderAuth(data.authentication);
+
+            // Behavior & MITRE
+            renderBehavior(data.ai_intent);
+            renderMitre(threat.mitre_attack_tactics);
+
+            // Headers
+            renderHeaders(data.headers.raw_headers);
+
+            // Copilot
+            loadCopilot(data.case_id);
+
+            updateHistoryCount();
+            lucide.createIcons();
+        }
+
+        function renderLogicProofs(proofsData) {
+            const container = document.getElementById("resLogicProofsContainer");
+            container.innerHTML = "";
+            if (!proofsData || !proofsData.proof_chains || proofsData.proof_chains.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400 font-mono">No declarative logic anomalies deduced.</p>';
+                return;
+            }
+
+            proofsData.proof_chains.forEach(p => {
+                container.innerHTML += `
+                    <div class="p-3.5 rounded-xl bg-[#09152E] border border-blue-900/60 text-xs space-y-2 font-mono">
+                        <div class="flex justify-between items-center text-blue-300 font-bold">
+                            <span>Axiom Rule: <code>${p.rule}</code></span>
+                            <span class="px-2 py-0.5 rounded text-[10px] ${p.verdict === 'MALICIOUS' ? 'bg-rose-950 text-rose-300 border border-rose-800' : 'bg-emerald-950 text-emerald-300 border border-emerald-800'}">${p.verdict}</span>
+                        </div>
+                        <ul class="list-disc pl-4 space-y-0.5 text-slate-300 text-[11px] font-sans">
+                            ${p.evidence.map(e => `<li>${e}</li>`).join('')}
+                        </ul>
+                        <div class="pt-1.5 border-t border-blue-950 text-[11px] text-cyan-300">
+                            <strong>Deduction:</strong> <code>${p.conclusion}</code>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderHops(hops) {
+            const tbody = document.getElementById("resHopsTableBody");
+            tbody.innerHTML = "";
+            const latlngs = [];
+
+            if (map) { map.remove(); map = null; }
+            map = L.map('hopMap').setView([20, 0], 2);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+
+            (hops || []).forEach((h, idx) => {
+                const row = `
+                    <tr class="hover:bg-[#071124] transition">
+                        <td class="py-2 px-3 font-bold text-cyan-400">${h.hop_index}</td>
+                        <td class="py-2 px-3 text-slate-200">${h.from_host}</td>
+                        <td class="py-2 px-3 text-slate-300">${h.ip || 'Private LAN'}</td>
+                        <td class="py-2 px-3 text-slate-400">${h.is_public_ip ? 'Public Relay' : 'Internal'}</td>
+                        <td class="py-2 px-3 text-slate-400 font-mono text-[10px]">${h.protocol}</td>
+                        <td class="py-2 px-3 ${h.delay_seconds < 0 ? 'text-rose-400 font-bold' : 'text-slate-400'}">${h.delay_seconds}s</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function renderAuth(auth) {
+            document.getElementById("resSpfBadge").innerText = auth.spf.status;
+            document.getElementById("resSpfBadge").className = `text-[10px] font-mono px-2 py-0.5 rounded font-bold ${auth.spf.status === 'PASS' ? 'bg-emerald-950 text-emerald-300' : 'bg-rose-950 text-rose-300'}`;
+            document.getElementById("resSpfDetail").innerText = auth.spf.detail;
+
+            document.getElementById("resDkimBadge").innerText = auth.dkim.status;
+            document.getElementById("resDkimBadge").className = `text-[10px] font-mono px-2 py-0.5 rounded font-bold ${auth.dkim.status === 'PASS' ? 'bg-emerald-950 text-emerald-300' : 'bg-rose-950 text-rose-300'}`;
+            document.getElementById("resDkimDetail").innerText = auth.dkim.detail;
+
+            document.getElementById("resDmarcBadge").innerText = auth.dmarc.status;
+            document.getElementById("resDmarcBadge").className = `text-[10px] font-mono px-2 py-0.5 rounded font-bold ${auth.dmarc.status === 'PASS' ? 'bg-emerald-950 text-emerald-300' : 'bg-rose-950 text-rose-300'}`;
+            document.getElementById("resDmarcDetail").innerText = auth.dmarc.detail;
+        }
+
+        function renderBehavior(aiIntent) {
+            const container = document.getElementById("resAiTacticsContainer");
+            container.innerHTML = "";
+            (aiIntent.tactics_detected || []).forEach(t => {
+                container.innerHTML += `
+                    <div class="p-3 rounded-xl bg-rose-950/40 border border-rose-800 text-xs space-y-1">
+                        <div class="flex justify-between font-bold text-rose-400"><span>${t.tactic}</span><span class="font-mono text-[10px]">${t.severity}</span></div>
+                        <p class="text-slate-300">${t.description}</p>
+                    </div>
+                `;
+            });
+            if (!aiIntent.tactics_detected || aiIntent.tactics_detected.length === 0) {
+                container.innerHTML = '<p class="text-xs text-emerald-400 font-mono">✓ Zero social engineering or wire fraud patterns detected.</p>';
+            }
+        }
+
+        function renderMitre(tactics) {
+            const container = document.getElementById("resMitreList");
+            container.innerHTML = "";
+            (tactics || []).forEach(m => {
+                container.innerHTML += `
+                    <div class="p-3 rounded-xl bg-[#071124] border border-vt-border text-xs space-y-1 font-mono">
+                        <div class="flex justify-between text-cyan-300 font-bold"><span>${m.id}</span><span class="text-slate-400 text-[10px]">${m.tactic}</span></div>
+                        <p class="text-slate-200 font-sans">${m.name}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function renderHeaders(headers) {
+            const tbody = document.getElementById("resRawHeadersBody");
+            tbody.innerHTML = "";
+            (headers || []).forEach(h => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-[#071124] transition">
+                        <td class="py-2 px-3 text-cyan-400 font-bold w-48">${h.name}</td>
+                        <td class="py-2 px-3 text-slate-300 break-all">${h.value}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function renderCytoscapeGraph() {
+            try {
+                const resp = await fetch("/api/graph");
+                const res = await resp.json();
+                if (cy) cy.destroy();
+                cy = cytoscape({
+                    container: document.getElementById('cyGraph'),
+                    elements: res.elements || { nodes: [], edges: [] },
+                    style: [
+                        { selector: 'node', style: { 'background-color': 'data(color)', 'label': 'data(label)', 'color': '#E2E8F0', 'font-size': '10px' } },
+                        { selector: 'edge', style: { 'width': 1.5, 'line-color': '#475569', 'target-arrow-color': '#475569', 'target-arrow-shape': 'triangle', 'curve-style': 'bezier', 'label': 'data(label)', 'font-size': '8px', 'color': '#94A3B8' } }
+                    ],
+                    layout: { name: 'cose', animate: true }
+                });
+            } catch(e) {}
+        }
+
+        async function loadCopilot(caseId) {
+            copilotChatHistory = [];
+            try {
+                const resp = await fetch(`/api/chat/greeting/${caseId}`);
+                const res = await resp.json();
+                if (res.status === "success") {
+                    document.getElementById("copilotInitialGreeting").innerHTML = formatMarkdown(res.greeting);
+                    copilotChatHistory.push({ role: "assistant", content: res.greeting });
+                }
+            } catch(e) {}
+        }
+
+        function insertCopilotPrompt(text) {
+            document.getElementById("copilotChatInput").value = text;
+            sendCopilotChat();
+        }
+
+        async function sendCopilotChat() {
+            const input = document.getElementById("copilotChatInput");
+            const query = input.value.trim();
+            if (!query || !currentCaseId) return;
+
+            const chatContainer = document.getElementById("copilotChatMessages");
+            chatContainer.innerHTML += `
+                <div class="flex items-start justify-end space-x-2">
+                    <div class="p-3 rounded-xl bg-cyan-700 text-white text-xs max-w-xl">${query}</div>
+                </div>
+            `;
+            input.value = "";
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            copilotChatHistory.push({ role: "user", content: query });
+
+            try {
+                const fd = new FormData();
+                fd.append("case_id", currentCaseId);
+                fd.append("message", query);
+                fd.append("history", JSON.stringify(copilotChatHistory));
+
+                const resp = await fetch("/api/chat/message", { method: "POST", body: fd });
+                const res = await resp.json();
+                if (res.status === "success") {
+                    copilotChatHistory.push({ role: "assistant", content: res.reply });
+                    chatContainer.innerHTML += `
+                        <div class="flex items-start space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-cyan-950 border border-cyan-700 text-cyan-400 flex items-center justify-center flex-shrink-0 mt-1"><i data-lucide="bot" class="w-4 h-4"></i></div>
+                            <div class="p-3.5 rounded-xl bg-[#09152E] border border-cyan-900/60 text-xs text-slate-200 leading-relaxed max-w-2xl font-sans">${formatMarkdown(res.reply)}</div>
+                        </div>
+                    `;
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    lucide.createIcons();
+                }
+            } catch(e) {}
+        }
+
+        function formatMarkdown(text) {
+            if (!text) return "";
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em class="text-cyan-300">$1</em>')
+                .replace(/`([^`]+)`/g, '<code class="bg-[#071124] text-cyan-300 px-1 py-0.5 rounded font-mono text-[11px]">$1</code>')
+                .replace(/\n/g, '<br/>');
+        }
+
+        async function purgeCaseFromRAM() {
+            if (!currentCaseId) return;
+            if (!confirm("Are you sure you want to completely wipe this evidence case from RAM right now?")) return;
+
+            try {
+                const resp = await fetch(`/api/case/${currentCaseId}`, { method: "DELETE" });
+                const res = await resp.json();
+                if (res.status === "success") {
+                    alert("Evidence case successfully wiped from volatile memory.");
+                    showHomePage();
+                    updateHistoryCount();
+                }
+            } catch(e) {
+                alert("Purge error: " + e.message);
+            }
+        }
+
+        async function loadDemoInbox() {
+            try {
+                const resp = await fetch("/api/gmail/demo");
+                const res = await resp.json();
+                const tbody = document.getElementById("gmailInboxTableBody");
+                tbody.innerHTML = "";
+                (res.messages || []).forEach(m => {
+                    tbody.innerHTML += `
+                        <tr onclick="scanDemoMessage('${m.id}')" class="hover:bg-[#0C1E3D] cursor-pointer transition">
+                            <td class="py-2.5 px-3">
+                                <div class="font-bold text-white">${m.subject}</div>
+                                <div class="text-[10px] text-slate-400 font-mono">${m.from}</div>
+                            </td>
+                            <td class="py-2.5 px-3 text-right">
+                                <button class="px-3 py-1 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-[11px] font-mono">Scan</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch(e) {}
+        }
+
+        function scanDemoMessage(msgId) {
+            const fd = new FormData();
+            fd.append("msg_id", msgId);
+            fd.append("is_demo", "true");
+
+            document.getElementById("homeView").classList.add("hidden");
+            document.getElementById("scanningView").classList.remove("hidden");
+
+            fetch("/api/gmail/scan_message", { method: "POST", body: fd })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.status === "success") renderResults(res.data);
+                    else { alert("Scan failed."); showHomePage(); }
+                })
+                .catch(e => { alert("Error: " + e.message); showHomePage(); });
+        }
+
+        async function loadSpecificCase(caseId) {
+            try {
+                const resp = await fetch(`/api/case/${caseId}`);
+                const res = await resp.json();
+                if (res.status === "success") renderResults(res.data);
+            } catch(e) {}
+        }
+
+        async function updateHistoryCount() {
+            try {
+                const resp = await fetch("/api/history");
+                const res = await resp.json();
+                document.getElementById("navHistoryCount").innerText = res.stats ? res.stats.total : 0;
+            } catch(e) {}
+        }
+
+        async function showHistoryModal() {
+            try {
+                const resp = await fetch("/api/history");
+                const res = await resp.json();
+                const list = document.getElementById("historyModalList");
+                list.innerHTML = "";
+                if (!res.records || res.records.length === 0) {
+                    list.innerHTML = '<p class="text-slate-500 text-center py-4">No active cases in volatile RAM.</p>';
+                } else {
+                    res.records.forEach(r => {
+                        list.innerHTML += `
+                            <div onclick="loadSpecificCase('${r.case_id}'); closeHistoryModal();" class="p-3 rounded-xl bg-[#09152E] hover:bg-[#0C1E3D] border border-cyan-950 flex justify-between items-center cursor-pointer transition">
+                                <div>
+                                    <div class="font-bold text-white text-xs">${r.subject}</div>
+                                    <div class="text-[10px] text-slate-400 font-mono">${r.from}</div>
+                                </div>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${r.color_class === 'rose' ? 'bg-rose-950 text-rose-300' : 'bg-emerald-950 text-emerald-300'}">${r.verdict}</span>
+                            </div>
+                        `;
+                    });
+                }
+                document.getElementById("historyModal").classList.remove("hidden");
+            } catch(e) {}
+        }
+
+        function closeHistoryModal() {
+            document.getElementById("historyModal").classList.add("hidden");
+        }
+
+        function exportDossierPDF() {
+            if (!currentCaseId) return;
+            window.open(`/api/report/pdf/${currentCaseId}`, '_blank');
+        }
+
+        function exportSTIXBundle() {
+            if (!currentCaseId) return;
+            window.open(`/api/report/stix/${currentCaseId}`, '_blank');
+        }
+    </script>
+</body>
+</html>

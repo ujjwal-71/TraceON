@@ -1,0 +1,269 @@
+/* Injected Gmail Scan Button */
+.traceon-gmail-scan-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: #071124 !important;
+    border: 1px solid rgba(6, 182, 212, 0.5) !important;
+    color: #38BDF8 !important;
+    font-size: 10px !important;
+    font-weight: bold !important;
+    font-family: monospace !important;
+    padding: 2px 6px !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    margin-left: 6px !important;
+    vertical-align: middle !important;
+    box-shadow: 0 0 8px rgba(6, 182, 212, 0.25) !important;
+    transition: all 0.2s ease !important;
+    z-index: 10 !important;
+}
+
+.traceon-gmail-scan-btn:hover {
+    background: #0C1E3D !important;
+    border-color: #38BDF8 !important;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.5) !important;
+    transform: scale(1.05) !important;
+}
+
+.traceon-shield-icon {
+    font-size: 11px !important;
+}
+
+.traceon-btn-tag {
+    letter-spacing: 0.5px !important;
+}
+
+/* Open Email Toolbar Button */
+.traceon-toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: linear-gradient(135deg, #0284C7, #06B6D4) !important;
+    color: white !important;
+    font-size: 11px !important;
+    font-weight: bold !important;
+    font-family: monospace !important;
+    padding: 5px 10px !important;
+    border-radius: 8px !important;
+    border: none !important;
+    cursor: pointer !important;
+    margin-left: 8px !important;
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.4) !important;
+    transition: 0.2s !important;
+}
+
+.traceon-toolbar-btn:hover {
+    transform: scale(1.04) !important;
+    box-shadow: 0 0 18px rgba(6, 182, 212, 0.6) !important;
+}
+
+/* Modal Overlay */
+#traceonModalOverlay {
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(3, 7, 18, 0.75) !important;
+    backdrop-filter: blur(6px) !important;
+    z-index: 9999999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    animation: traceonFadeIn 0.2s ease-out !important;
+}
+
+@keyframes traceonFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Modal Card */
+.traceon-modal-card {
+    width: 360px !important;
+    background: #071124 !important;
+    border: 1px solid rgba(6, 182, 212, 0.5) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 0 40px rgba(6, 182, 212, 0.3), 0 20px 40px rgba(0,0,0,0.8) !important;
+    color: #E2E8F0 !important;
+    overflow: hidden !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    animation: traceonScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+@keyframes traceonScaleUp {
+    from { transform: scale(0.92); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Modal Header */
+.traceon-modal-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 12px 16px !important;
+    border-bottom: 1px solid rgba(6, 182, 212, 0.2) !important;
+    background: #050B17 !important;
+}
+
+.traceon-modal-brand {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+.traceon-title {
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    font-family: monospace !important;
+    letter-spacing: 1.5px !important;
+    color: white !important;
+}
+
+.traceon-close-btn {
+    background: transparent !important;
+    border: none !important;
+    color: #94A3B8 !important;
+    font-size: 18px !important;
+    cursor: pointer !important;
+    line-height: 1 !important;
+}
+
+.traceon-close-btn:hover {
+    color: white !important;
+}
+
+/* Modal Body */
+.traceon-modal-body {
+    padding: 20px 16px 14px 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 12px !important;
+}
+
+/* Middle Score Halo */
+.traceon-middle-score {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.traceon-score-halo {
+    width: 84px !important;
+    height: 84px !important;
+    border-radius: 50% !important;
+    background: #030712 !important;
+    border-width: 3px !important;
+    border-style: solid !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.traceon-score-ratio {
+    font-size: 24px !important;
+    font-weight: 900 !important;
+    font-family: monospace !important;
+    line-height: 1 !important;
+}
+
+.traceon-score-sub {
+    font-size: 8px !important;
+    font-weight: bold !important;
+    font-family: monospace !important;
+    color: #94A3B8 !important;
+    letter-spacing: 1px !important;
+}
+
+.traceon-risk-badge {
+    font-size: 9px !important;
+    font-weight: bold !important;
+    font-family: monospace !important;
+    padding: 2px 8px !important;
+    border-radius: 12px !important;
+    letter-spacing: 1px !important;
+}
+
+/* Diagnosis Box */
+.traceon-diag-box {
+    background: #09152E !important;
+    border: 1px solid rgba(6, 182, 212, 0.3) !important;
+    border-radius: 10px !important;
+    padding: 10px !important;
+    width: 100% !important;
+}
+
+.traceon-diag-text {
+    font-size: 11px !important;
+    color: #E2E8F0 !important;
+    line-height: 1.4 !important;
+    font-weight: 500 !important;
+}
+
+/* Action Button */
+.traceon-full-results-btn {
+    width: 100% !important;
+    padding: 10px !important;
+    border-radius: 10px !important;
+    background: linear-gradient(135deg, #0284C7, #06B6D4) !important;
+    color: white !important;
+    font-size: 12px !important;
+    font-weight: bold !important;
+    border: none !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.35) !important;
+    transition: 0.2s !important;
+}
+
+.traceon-full-results-btn:hover {
+    transform: scale(1.02) !important;
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.5) !important;
+}
+
+.traceon-arrow {
+    font-size: 14px !important;
+}
+
+/* Bottom Disclaimer (As requested by user) */
+.traceon-bottom-disclaimer {
+    font-size: 9px !important;
+    color: #64748B !important;
+    font-family: monospace !important;
+    margin-top: 2px !important;
+}
+
+/* Loading Radar */
+.traceon-loading-state {
+    padding: 24px 16px !important;
+}
+
+.traceon-radar-mini {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    border: 2px solid #06B6D4 !important;
+    border-top-color: transparent !important;
+    animation: traceonSpin 1s linear infinite !important;
+}
+
+@keyframes traceonSpin {
+    to { transform: rotate(360deg); }
+}
+
+.traceon-subject-preview {
+    font-size: 11px !important;
+    font-weight: bold !important;
+    color: white !important;
+}
+
+.traceon-sub-note {
+    font-size: 9px !important;
+    color: #06B6D4 !important;
+    font-family: monospace !important;
+}
